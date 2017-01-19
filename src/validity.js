@@ -15,7 +15,7 @@
 	 * @name _requestValidation
 	 */
 	function _requestValidation() {
-		chrome.extension.sendRequest({'action': 'validate'});
+		browser.runtime.sendMessage({'action': 'validate'});
 	}
 
 	/**
@@ -24,15 +24,15 @@
 	 * @name _getOptions
 	 */
 	function _getOptions(callback) {
-		chrome.extension.sendRequest({'action': 'options'}, function(options) {
-			//	Copy to closure scope.
+		browser.runtime.sendMessage({'action': 'options'}).then(function(options){
+            //	Copy to closure scope.
 			opts = options;
 
 			//	If a callback was passed in, call it, passing in object returned from controller.
 			if (typeof callback === 'function') {
 				callback(opts);
 			}
-		});
+        });
 	}
 
 	/**
@@ -108,16 +108,16 @@
 	 */
 	function _init() {
 		_getOptions(function() {
-			chrome.extension.sendRequest({'action': 'init'}, function(response) {
-				if (response.attatchActions === true) {
-					chrome.extension.onRequest.addListener(function(results) {
-						chrome.extension.sendRequest({'action': 'options'}, function(options) {
-							opts = options;
+			browser.runtime.sendMessage({'action': 'init'}).then(function(response){
+                if (response.attatchActions === true) {
+                    browser.runtime.onMessage.addListener(function(results){
+                        browser.runtime.sendMessage({'action': 'options'}).then(function(options){
+                            opts = options;
 							_logMessages(results);
-						});
-					});	
+                        });
+                    });
 				}
-			});
+            });
 		});
 	}
 

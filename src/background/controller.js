@@ -85,7 +85,7 @@ var validity = (function(validity) {
 		validity.net.getSource(tab, function(source) {
 			//	Submit source to validator
 			validity.net.submitValidation(tab, source, function(tab, messages) {
-				chrome.tabs.sendRequest(tab.id, messages);
+				browser.tabs.sendMessage(tab.id, messages);
 			});
 		});
 	};
@@ -125,7 +125,7 @@ var validity = (function(validity) {
 	*/
 	controller._init = function() {
 		//	Listen for requests from content script
-		chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+		browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			var response;
 
 			//	Pass request to the dispatch method
@@ -135,7 +135,7 @@ var validity = (function(validity) {
 		});
 
 		//	Set up page action events
-		chrome.pageAction.onClicked.addListener(function(tab) {
+		browser.pageAction.onClicked.addListener(function(tab) {
 			controller.validate(tab);
 		});
 	};
