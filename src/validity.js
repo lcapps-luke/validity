@@ -46,7 +46,7 @@
 			line,
 			errorCount = response.errorCount,
 			warningCount = response.warningCount,
-			toEval = '';
+			//toEval = '';
 
 		messages = response.messages;
 
@@ -59,47 +59,34 @@
 
 		if (errorCount > 0 || warningCount > 0) {
 			//	Collapse results based on option
-			if (console.groupCollapsed && opts.collapseResults) {
-				toEval += 'console.groupCollapsed';
-			}
-			else {
-				toEval += 'console.group';
-			}
-
 			if (errorCount > 0) {
-				toEval += '(\'' + errorCount + ' validation error' +
-					//	Add s for plural
-					(errorCount > 1?'s':'') +
-					'\');';
+                _createConsoleGroup('' + errorCount + ' validation error' + (errorCount > 1?'s':''));
 			}
 			else {
-				toEval += '(\'Document is valid with ' + warningCount + ' warning' +
-					//	Add s for plural
-					(warningCount > 1?'s':'') +
-					'\');';
+                _createConsoleGroup('Document is valid with ' + warningCount + ' warning' + (warningCount > 1?'s':''))
 			}
 
 			for(var i in messages) {
 				message = messages[i];
 				line = message.lastLine;
-
-				toEval += 'console.' +
-					message.type + '(\'' +
-					//	Write line number if available
-					(line > 0?'line ' + line + ': ':'') +
-					//	Remove line breaks and escape quotes in message
-					message.message.replace(/\r\n|\n|\r/g, '').replace(/([\'\"])/g, '\\$1') +
-					'\');';
+                
+                console[message.type]((line > 0?'line ' + line + ': ':'') + message.message.replace(/\r\n|\n|\r/g, ''));
 			}
 
-			toEval += 'console.groupEnd();';
+            console.groupEnd();
 		}
 		else {
-			toEval += 'console.info(\'Document is valid \')';
+            console.info('Document is valid ');
 		}
-
-		eval(toEval);
 	}
+    
+    function _createConsoleGroup(message){
+        if(console.groupCollapsed && opts.collapseResults){
+            console.groupCollapsed(message);
+        }else{
+            console.group(message);
+        }
+    }
 
 	/**
 	 * @private
