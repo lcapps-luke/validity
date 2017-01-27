@@ -41,14 +41,11 @@
 	 * @name _logMessages
 	 */
 	function _logMessages(response) {
-		var messages,
+		var messages  = response.messages,
 			message,
 			line,
 			errorCount = response.errorCount,
-			warningCount = response.warningCount,
-			//toEval = '';
-
-		messages = response.messages;
+			warningCount = response.warningCount;
 
 		if (messages === undefined) {
 			/*!debug*/
@@ -63,7 +60,7 @@
                 _createConsoleGroup('' + errorCount + ' validation error' + (errorCount > 1?'s':''));
 			}
 			else {
-                _createConsoleGroup('Document is valid with ' + warningCount + ' warning' + (warningCount > 1?'s':''))
+                _createConsoleGroup('Document is valid with ' + warningCount + ' warning' + (warningCount > 1?'s':''));
 			}
 
 			for(var i in messages) {
@@ -80,6 +77,11 @@
 		}
 	}
     
+    /**
+	 * @private
+	 * @function
+	 * @name _createConsoleGroup
+	 */
     function _createConsoleGroup(message){
         if(console.groupCollapsed && opts.collapseResults){
             console.groupCollapsed(message);
