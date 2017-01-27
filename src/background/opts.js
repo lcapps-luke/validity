@@ -47,7 +47,7 @@ var validity = (function (validity) {
 	opts._init = function() {
 		opts._load();
 		// Load new options on change.
-		chrome.storage.onChanged.addListener(opts._load);
+		browser.storage.onChanged.addListener(opts._load);
 	};
 
 	/**
@@ -59,7 +59,7 @@ var validity = (function (validity) {
 			backend = storageObj;
 		}
 		else if (backend === undefined) {
-			backend = chrome.storage.sync;
+			backend = browser.storage.sync === undefined ? browser.storage.local : browser.storage.sync;
 		}
 		return backend;
 	};

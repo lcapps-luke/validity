@@ -15,7 +15,7 @@
 	 * @name _requestValidation
 	 */
 	function _requestValidation() {
-		chrome.extension.sendRequest({'action': 'validate'});
+		browser.runtime.sendMessage({'action': 'validate'});
 	}
 
 	/**
@@ -24,15 +24,15 @@
 	 * @name _getOptions
 	 */
 	function _getOptions(callback) {
-		chrome.extension.sendRequest({'action': 'options'}, function(options) {
-			//	Copy to closure scope.
+		browser.runtime.sendMessage({'action': 'options'}).then(function(options){
+            //	Copy to closure scope.
 			opts = options;
 
 			//	If a callback was passed in, call it, passing in object returned from controller.
 			if (typeof callback === 'function') {
 				callback(opts);
 			}
-		});
+        });
 	}
 
 	/**
@@ -41,14 +41,11 @@
 	 * @name _logMessages
 	 */
 	function _logMessages(response) {
-		var messages,
+		var messages  = response.messages,
 			message,
 			line,
 			errorCount = response.errorCount,
-			warningCount = response.warningCount,
-			toEval = '';
-
-		messages = response.messages;
+			warningCount = response.warningCount;
 
 		if (messages === undefined) {
 			/*!debug*/
@@ -59,47 +56,39 @@
 
 		if (errorCount > 0 || warningCount > 0) {
 			//	Collapse results based on option
-			if (console.groupCollapsed && opts.collapseResults) {
-				toEval += 'console.groupCollapsed';
-			}
-			else {
-				toEval += 'console.group';
-			}
-
 			if (errorCount > 0) {
-				toEval += '(\'' + errorCount + ' validation error' +
-					//	Add s for plural
-					(errorCount > 1?'s':'') +
-					'\');';
+                _createConsoleGroup('' + errorCount + ' validation error' + (errorCount > 1?'s':''));
 			}
 			else {
-				toEval += '(\'Document is valid with ' + warningCount + ' warning' +
-					//	Add s for plural
-					(warningCount > 1?'s':'') +
-					'\');';
+                _createConsoleGroup('Document is valid with ' + warningCount + ' warning' + (warningCount > 1?'s':''));
 			}
 
 			for(var i in messages) {
 				message = messages[i];
 				line = message.lastLine;
-
-				toEval += 'console.' +
-					message.type + '(\'' +
-					//	Write line number if available
-					(line > 0?'line ' + line + ': ':'') +
-					//	Remove line breaks and escape quotes in message
-					message.message.replace(/\r\n|\n|\r/g, '').replace(/([\'\"])/g, '\\$1') +
-					'\');';
+                
+                console[message.type]((line > 0?'line ' + line + ': ':'') + message.message.replace(/\r\n|\n|\r/g, ''));
 			}
 
-			toEval += 'console.groupEnd();';
+            console.groupEnd();
 		}
 		else {
-			toEval += 'console.info(\'Document is valid \')';
+            console.info('Document is valid ');
 		}
-
-		eval(toEval);
 	}
+    
+    /**
+	 * @private
+	 * @function
+	 * @name _createConsoleGroup
+	 */
+    function _createConsoleGroup(message){
+        if(console.groupCollapsed && opts.collapseResults){
+            console.groupCollapsed(message);
+        }else{
+            console.group(message);
+        }
+    }
 
 	/**
 	 * @private
@@ -108,16 +97,16 @@
 	 */
 	function _init() {
 		_getOptions(function() {
-			chrome.extension.sendRequest({'action': 'init'}, function(response) {
-				if (response.attatchActions === true) {
-					chrome.extension.onRequest.addListener(function(results) {
-						chrome.extension.sendRequest({'action': 'options'}, function(options) {
-							opts = options;
+			browser.runtime.sendMessage({'action': 'init'}).then(function(response){
+                if (response.attatchActions === true) {
+                    browser.runtime.onMessage.addListener(function(results){
+                        browser.runtime.sendMessage({'action': 'options'}).then(function(options){
+                            opts = options;
 							_logMessages(results);
-						});
-					});	
+                        });
+                    });
 				}
-			});
+            });
 		});
 	}
 

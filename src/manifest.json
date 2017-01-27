@@ -54,6 +54,8 @@
 			"description": "__MSG_page_action_title__"
 		}
 	},
-	"options_page": "options.html",
+	"options_ui":{
+        "page": "options.html"
+    },
 	"manifest_version": 2
 }
