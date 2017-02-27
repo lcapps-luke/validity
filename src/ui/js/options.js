@@ -13,7 +13,8 @@ var validity = (function(validity) {
 			hostOpt,
 			validator = $('validator'),
 			legacy = $('legacy'),
-			collapsed = $('collapse');
+			collapsed = $('collapse'),
+            noAdditionalGet = $('noAdditionalGet');
 
 		//	Load options
 		window.addEventListener('load', function() {
@@ -59,6 +60,10 @@ var validity = (function(validity) {
 				//	Defaults to true
 				collapsed.checked = true;
 			}
+            
+            if (validity.opts.option('noAdditionalGet') !== undefined) {
+				noAdditionalGet.checked = validity.opts.option('noAdditionalGet');
+			}
 		});
 	}
 
@@ -84,6 +89,7 @@ var validity = (function(validity) {
 		validity.opts.option('legacy', legacy.disabled?false:legacy.checked);
 		validity.opts.option('validator', validator.value);
 		validity.opts.option('collapseResults', collapse.checked);
+        validity.opts.option('noAdditionalGet', noAdditionalGet.checked);
 	}
 
 	//	Edit hosts

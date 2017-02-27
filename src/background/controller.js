@@ -81,13 +81,22 @@ var validity = (function(validity) {
 	* @public
 	*/
 	controller.validate = function(tab) {
-		//	Fetch source
-		validity.net.getSource(tab, function(source) {
-			//	Submit source to validator
-			validity.net.submitValidation(tab, source, function(tab, messages) {
-				browser.tabs.sendMessage(tab.id, messages);
-			});
-		});
+        function validateSource(source){
+            //	Submit source to validator
+            validity.net.submitValidation(tab, source, function(tab, messages) {
+                browser.tabs.sendMessage(tab.id, messages);
+            });
+        }
+        
+        if(validity.opts.option('noAdditionalGet')){
+            validity.ui.setPageAction(tab.id, 'connecting', 'Contacting validator...');
+            browser.tabs.executeScript(tab.id, {
+                "code": "new XMLSerializer().serializeToString(document.doctype) + document.documentElement.outerHTML"
+            }).then(validateSource);
+        }else{
+            //	Fetch source
+            validity.net.getSource(tab, validateSource);
+        }
 	};
 
 	//	Private Functions
